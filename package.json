@@ -1,0 +1,18 @@
+{
+  "name": "rawqan-bookstore",
+  "version": "1.0.0",
+  "description": "متجر روقان الإلكتروني - متجر كتاب عربي فاخر",
+  "main": "server/server.js",
+  "scripts": {
+    "start": "node server/server.js",
+    "dev": "nodemon server/server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "body-parser": "^20.2.0"
+  },
+  "keywords": ["bookstore", "e-commerce", "rawqan", "arabic", "nodejs"],
+  "author": "Rawqan Team",
+  "license": "MIT"
+}
