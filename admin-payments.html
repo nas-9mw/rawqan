@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<title>طرق الدفع | روقان</title>
+<style>
+  :root { --yellow:#f7ef46; --bg:#0a0a0a; --card:#171717; --border:#2a2a2a; --muted:#a3a3a3; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:"Tajawal","Segoe UI",system-ui,sans-serif; background:var(--bg); color:#fff; min-height:100vh; }
+  .topbar { background:#000; border-bottom:1px solid var(--border); padding:14px 20px; display:flex; justify-content:space-between; align-items:center; }
+  .topbar a { color:var(--yellow); text-decoration:none; font-weight:bold; }
+  .topbar h1 { color:var(--yellow); margin:0; font-size:20px; }
+  .wrap { max-width:1000px; margin:24px auto; padding:0 16px; }
+  .card { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:20px; margin-bottom:18px; }
+  h2 { margin:0 0 14px; color:var(--yellow); }
+  label { display:block; margin:8px 0 4px; font-size:13px; color:var(--muted); }
+  input[type=text], textarea { width:100%; background:#000; border:1px solid var(--border); color:#fff; padding:10px 12px; border-radius:8px; font-family:inherit; font-size:14px; }
+  input:focus, textarea:focus { outline:none; border-color:var(--yellow); }
+  .btn { background:var(--yellow); color:#000; border:none; padding:10px 18px; border-radius:8px; font-weight:bold; cursor:pointer; font-family:inherit; }
+  .btn-danger { background:#dc2626; color:#fff; }
+  .btn-ghost { background:transparent; color:#fff; border:1px solid var(--border); }
+  table { width:100%; border-collapse:collapse; }
+  th, td { text-align:right; padding:10px; border-bottom:1px solid var(--border); font-size:14px; }
+  th { color:var(--muted); font-weight:normal; font-size:12px; }
+  .grid { display:grid; gap:10px; grid-template-columns:80px 1fr 1fr 80px 100px; }
+  @media (max-width:720px) { .grid { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+  <div class="topbar">
+    <h1>طرق الدفع</h1>
+    <div>
+      <a href="/admin-chatbot.html">← المساعد الذكي</a>
+      &nbsp;|&nbsp;
+      <a href="/index.html">لوحة التحكم</a>
+    </div>
+  </div>
+  <div class="wrap">
+    <div class="card">
+      <h2>إضافة طريقة دفع</h2>
+      <div class="grid">
+        <div>
+          <label>الأيقونة (إيموجي)</label>
+          <input id="newIcon" type="text" value="💳" />
+        </div>
+        <div>
+          <label>الاسم</label>
+          <input id="newName" type="text" placeholder="مثال: STC Pay" />
+        </div>
+        <div>
+          <label>الوصف</label>
+          <input id="newDesc" type="text" placeholder="وصف قصير" />
+        </div>
+        <div>
+          <label>الترتيب</label>
+          <input id="newOrder" type="text" value="0" />
+        </div>
+        <div style="display:flex;align-items:flex-end">
+          <button id="addBtn" class="btn">إضافة</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>الطرق المتاحة</h2>
+      <table>
+        <thead><tr><th>أيقونة</th><th>الاسم</th><th>الوصف</th><th>ترتيب</th><th>مفعّل</th><th>إجراءات</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </div>
+
+<script src="/rawqan-shared.js"></script>
+<script>
+(async function () {
+  const rows = document.getElementById("rows");
+  async function reload() {
+    const list = await RAWQAN.listPayments();
+    rows.innerHTML = "";
+    list.forEach(p => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td><input type="text" data-field="icon" value="${(p.icon||'').replace(/"/g,'&quot;')}" style="width:60px;text-align:center;font-size:18px"></td>
+        <td><input type="text" data-field="name" value="${(p.name||'').replace(/"/g,'&quot;')}" style="width:100%"></td>
+        <td><input type="text" data-field="description" value="${(p.description||'').replace(/"/g,'&quot;')}" style="width:100%"></td>
+        <td><input type="text" data-field="sort_order" value="${p.sort_order}" style="width:60px"></td>
+        <td><input type="checkbox" data-field="active" ${p.active?'checked':''}></td>
+        <td><button class="btn btn-ghost" data-act="save">💾</button> <button class="btn btn-danger" data-act="del">🗑</button></td>
+      `;
+      tr.querySelector('[data-act="save"]').onclick = async () => {
+        await RAWQAN.updatePayment(p.id, {
+          icon: tr.querySelector('[data-field="icon"]').value,
+          name: tr.querySelector('[data-field="name"]').value,
+          description: tr.querySelector('[data-field="description"]').value,
+          sort_order: Number(tr.querySelector('[data-field="sort_order"]').value) || 0,
+          active: tr.querySelector('[data-field="active"]').checked,
+        });
+        alert("✓ تم الحفظ");
+      };
+      tr.querySelector('[data-act="del"]').onclick = async () => {
+        if (!confirm("حذف هذه الطريقة؟")) return;
+        await RAWQAN.deletePayment(p.id);
+        reload();
+      };
+      rows.appendChild(tr);
+    });
+  }
+  reload();
+
+  document.getElementById("addBtn").onclick = async () => {
+    const name = document.getElementById("newName").value.trim();
+    if (!name) return alert("الاسم مطلوب");
+    await RAWQAN.addPayment({
+      name,
+      description: document.getElementById("newDesc").value.trim(),
+      icon: document.getElementById("newIcon").value.trim() || "💳",
+      sort_order: Number(document.getElementById("newOrder").value) || 0,
+      active: true,
+    });
+    document.getElementById("newName").value = "";
+    document.getElementById("newDesc").value = "";
+    reload();
+  };
+})();
+</script>
+</body>
+</html>

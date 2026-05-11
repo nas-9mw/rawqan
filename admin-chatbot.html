@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<title>تدريب المساعد الذكي | روقان</title>
+<style>
+  :root { --yellow:#f7ef46; --bg:#0a0a0a; --card:#171717; --border:#2a2a2a; --muted:#a3a3a3; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:"Tajawal","Segoe UI",system-ui,sans-serif; background:var(--bg); color:#fff; min-height:100vh; }
+  .topbar { background:#000; border-bottom:1px solid var(--border); padding:14px 20px; display:flex; justify-content:space-between; align-items:center; }
+  .topbar a { color:var(--yellow); text-decoration:none; font-weight:bold; }
+  .topbar h1 { color:var(--yellow); margin:0; font-size:20px; }
+  .wrap { max-width:1000px; margin:24px auto; padding:0 16px; }
+  .card { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:20px; margin-bottom:18px; }
+  h2 { margin:0 0 14px; color:var(--yellow); }
+  label { display:block; margin:8px 0 4px; font-size:13px; color:var(--muted); }
+  input[type=text], textarea { width:100%; background:#000; border:1px solid var(--border); color:#fff; padding:10px 12px; border-radius:8px; font-family:inherit; font-size:14px; }
+  textarea { min-height:70px; resize:vertical; }
+  input:focus, textarea:focus { outline:none; border-color:var(--yellow); }
+  .btn { background:var(--yellow); color:#000; border:none; padding:10px 18px; border-radius:8px; font-weight:bold; cursor:pointer; font-family:inherit; }
+  .btn-danger { background:#dc2626; color:#fff; }
+  .btn-ghost { background:transparent; color:#fff; border:1px solid var(--border); }
+  .row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+  .toggle { display:inline-flex; align-items:center; gap:10px; background:#000; padding:10px 16px; border-radius:10px; border:1px solid var(--border); cursor:pointer; }
+  .toggle .dot { width:18px; height:18px; border-radius:50%; background:#444; }
+  .toggle.on .dot { background:#10b981; }
+  .toggle.off .dot { background:#dc2626; }
+  table { width:100%; border-collapse:collapse; }
+  th, td { text-align:right; padding:10px; border-bottom:1px solid var(--border); font-size:14px; vertical-align:top; }
+  th { color:var(--muted); font-weight:normal; font-size:12px; }
+  .small { font-size:12px; color:var(--muted); }
+  .grid { display:grid; gap:10px; grid-template-columns:1fr 2fr 80px 100px; }
+  @media (max-width:720px) { .grid { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+  <div class="topbar">
+    <h1>تدريب المساعد الذكي</h1>
+    <div class="row">
+      <a href="/admin-payments.html">طرق الدفع →</a>
+      <a href="/index.html">← لوحة التحكم</a>
+    </div>
+  </div>
+  <div class="wrap">
+
+    <div class="card">
+      <h2>حالة المساعد</h2>
+      <div class="row">
+        <span id="statusBadge" class="toggle"><span class="dot"></span><span id="statusText">...</span></span>
+        <button id="btnOn" class="btn" style="background:#10b981;color:#fff">▶ تشغيل المساعد</button>
+        <button id="btnOff" class="btn" style="background:#dc2626;color:#fff">⏸ إيقاف المساعد</button>
+      </div>
+      <p class="small" style="margin-top:8px">يتحكم بظهور أيقونة الروبوت في الموقع وتفعيل صفحة المحادثة.</p>
+      <label>رسالة الترحيب</label>
+      <textarea id="greeting"></textarea>
+      <label>رسالة "ما فهمت سؤالك"</label>
+      <textarea id="fallback"></textarea>
+      <div style="margin-top:10px"><button id="saveSettings" class="btn">حفظ الإعدادات</button></div>
+    </div>
+
+    <div class="card">
+      <h2>إضافة سؤال جديد</h2>
+      <div class="grid">
+        <div>
+          <label>الكلمات المفتاحية (افصل بفاصلة)</label>
+          <input id="newKeywords" type="text" placeholder="مثال: شحن,توصيل,طلب" />
+        </div>
+        <div>
+          <label>الرد</label>
+          <textarea id="newReply" placeholder="الرد الذي يعطيه البوت"></textarea>
+        </div>
+        <div>
+          <label>الترتيب</label>
+          <input id="newOrder" type="text" value="0" />
+        </div>
+        <div style="display:flex;align-items:flex-end">
+          <button id="addBtn" class="btn">إضافة</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>الأسئلة المُدرّبة</h2>
+      <table>
+        <thead><tr><th>الكلمات المفتاحية</th><th>الرد</th><th>ترتيب</th><th>مفعّل</th><th>حذف</th></tr></thead>
+        <tbody id="faqs"></tbody>
+      </table>
+    </div>
+  </div>
+
+<script src="/rawqan-shared.js"></script>
+<script>
+(async function () {
+  let settings = await RAWQAN.getSettings();
+  const statusBadge = document.getElementById("statusBadge");
+  const statusText = document.getElementById("statusText");
+  const greetingEl = document.getElementById("greeting");
+  const fallbackEl = document.getElementById("fallback");
+
+  function paintStatus() {
+    statusBadge.classList.toggle("on", settings.enabled);
+    statusBadge.classList.toggle("off", !settings.enabled);
+    statusText.textContent = settings.enabled ? "🟢 يعمل" : "🔴 متوقف";
+  }
+  greetingEl.value = settings.greeting || "";
+  fallbackEl.value = settings.fallback || "";
+  paintStatus();
+
+  async function setEnabled(v) {
+    settings.enabled = v;
+    paintStatus();
+    await RAWQAN.updateSettings(settings.id, { enabled: v });
+  }
+  document.getElementById("btnOn").onclick = () => setEnabled(true);
+  document.getElementById("btnOff").onclick = () => setEnabled(false);
+
+  document.getElementById("saveSettings").onclick = async () => {
+    await RAWQAN.updateSettings(settings.id, { greeting: greetingEl.value, fallback: fallbackEl.value });
+    alert("✓ تم الحفظ");
+  };
+
+  const tbody = document.getElementById("faqs");
+  async function reload() {
+    const list = await RAWQAN.listFaqs();
+    tbody.innerHTML = "";
+    list.forEach(f => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td><input type="text" data-field="keywords" value="${(f.keywords||'').replace(/"/g,'&quot;')}" style="width:100%"></td>
+        <td><textarea data-field="reply" style="width:100%">${f.reply||''}</textarea></td>
+        <td><input type="text" data-field="sort_order" value="${f.sort_order}" style="width:70px"></td>
+        <td><input type="checkbox" data-field="active" ${f.active?'checked':''}></td>
+        <td><button class="btn btn-ghost" data-act="save">💾</button> <button class="btn btn-danger" data-act="del">🗑</button></td>
+      `;
+      tr.querySelector('[data-act="save"]').onclick = async () => {
+        const patch = {
+          keywords: tr.querySelector('[data-field="keywords"]').value,
+          reply: tr.querySelector('[data-field="reply"]').value,
+          sort_order: Number(tr.querySelector('[data-field="sort_order"]').value) || 0,
+          active: tr.querySelector('[data-field="active"]').checked,
+        };
+        await RAWQAN.updateFaq(f.id, patch);
+        alert("✓ تم الحفظ");
+      };
+      tr.querySelector('[data-act="del"]').onclick = async () => {
+        if (!confirm("حذف هذا السؤال؟")) return;
+        await RAWQAN.deleteFaq(f.id);
+        reload();
+      };
+      tbody.appendChild(tr);
+    });
+  }
+  reload();
+
+  document.getElementById("addBtn").onclick = async () => {
+    const keywords = document.getElementById("newKeywords").value.trim();
+    const reply = document.getElementById("newReply").value.trim();
+    const sort_order = Number(document.getElementById("newOrder").value) || 0;
+    if (!keywords || !reply) return alert("الكلمات المفتاحية والرد مطلوبان");
+    await RAWQAN.addFaq({ keywords, reply, sort_order, active: true });
+    document.getElementById("newKeywords").value = "";
+    document.getElementById("newReply").value = "";
+    reload();
+  };
+})();
+</script>
+</body>
+</html>

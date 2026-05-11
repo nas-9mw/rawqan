@@ -1,0 +1,442 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <title>روقان | Rawqan</title>
+    <meta name="description" content="روقان - أندر من الكتاب الجيد القارئ الجيد">
+    <meta name="author" content="Rawqan" />
+
+    
+    
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/24398f16-9964-4312-a29f-1ba42a193423/id-preview-6846de31--3a9483f4-5e00-4289-92a2-1be9322e8888.lovable.app-1778000614640.png">
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@Lovable" />
+    <meta name="twitter:image" content="https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/24398f16-9964-4312-a29f-1ba42a193423/id-preview-6846de31--3a9483f4-5e00-4289-92a2-1be9322e8888.lovable.app-1778000614640.png">
+    <meta property="og:title" content="روقان | Rawqan">
+  <meta name="twitter:title" content="روقان | Rawqan">
+  <meta property="og:description" content="روقان - أندر من الكتاب الجيد القارئ الجيد">
+  <meta name="twitter:description" content="روقان - أندر من الكتاب الجيد القارئ الجيد">
+  <script>
+    if (new URLSearchParams(window.location.search).get("rawqanRoute") === "admin") {
+      window.history.replaceState(null, "", "/index.html/admin/login");
+    }
+  </script>
+  <style>
+    /* إخفاء الشات بوت القديم المضمّن في البنية */
+    button[aria-label="المساعد الذكي"]:not(.rwq-bot),
+    a[href="/chatbot"]:not(.rwq-bot),
+    a[href*="/chatbot"]:not(.rwq-bot) { display: none !important; }
+
+    /* أيقونة الروبوت الصفراء */
+    .rwq-bot {
+      display: inline-flex !important; align-items:center; justify-content:center;
+      width: 40px; height: 40px; border-radius: 50%;
+      background: #f7ef46 !important; color: #000 !important;
+      border: 2px solid #000; cursor: pointer; text-decoration: none;
+      box-shadow: 0 2px 8px rgba(247,239,70,0.4);
+      margin: 0 6px; transition: transform .15s;
+    }
+    .rwq-bot:hover { transform: scale(1.08); }
+
+    /* (تمت إزالة مودال اختيار طريقة الدفع — الآن عرض فقط) */
+
+    /* قائمة طرق الدفع في السلة (اختيار) */
+    .rwq-pay-box { background:#0f0f0f; border:1px solid #2a2a2a; border-radius:12px; padding:14px; margin:12px 0; font-family:"Tajawal",system-ui,sans-serif; }
+    .rwq-pay-box h4 { margin:0 0 10px; color:#f7ef46; font-size:15px; }
+    .rwq-pay-box .pm { display:flex; align-items:center; gap:10px; padding:10px 12px; background:#171717; border:1px solid #2a2a2a; border-radius:8px; margin-bottom:6px; cursor:pointer; transition:all .15s; }
+    .rwq-pay-box .pm:hover { border-color:#f7ef46; }
+    .rwq-pay-box .pm.selected { border-color:#f7ef46; background:#1f1d0a; }
+    .rwq-pay-box .pm input[type="radio"] { accent-color:#f7ef46; width:16px; height:16px; }
+    .rwq-pay-box .pm .ic { font-size:22px; }
+    .rwq-pay-box .pm .nm { font-weight:bold; color:#fff; font-size:14px; }
+    .rwq-pay-box .pm .ds { font-size:12px; color:#a3a3a3; }
+    .rwq-pay-box .empty { color:#a3a3a3; font-size:13px; text-align:center; padding:8px; }
+
+    /* روابط أقسام الأدمن */
+    .rwq-admin-links { display:flex; gap:10px; flex-wrap:wrap; padding:12px 16px; background:#0f0f0f; border-bottom:1px solid #2a2a2a; }
+    .rwq-admin-links a { background:#f7ef46; color:#000; padding:8px 14px; border-radius:8px; text-decoration:none; font-weight:bold; font-size:13px; }
+    .rwq-admin-links a:hover { filter: brightness(1.05); }
+  </style>
+  <script>
+    // إعدادات تخزين الصور (Lovable Cloud)
+    const SB_URL = "https://fdrvlszhniatlddkzksw.supabase.co";
+    const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkcnZsc3pobmlhdGxkZGt6a3N3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgxMTY4NTcsImV4cCI6MjA5MzY5Mjg1N30.-mhy3WqjKjzBSpypJlvh6ZVuGhFFuKSt0Dsxa-bXVRM";
+    const SB_BUCKET = "rawqan-images";
+
+    // ===== أيقونة الروبوت + زر اختيار الدفع + روابط أقسام الأدمن =====
+    const RWQ_BOT_ICON = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M9 15a1 1 0 100 2 1 1 0 000-2zm6 0a1 1 0 100 2 1 1 0 000-2zM12 1a2 2 0 00-1 3.73V7H6a3 3 0 00-3 3v10a3 3 0 003 3h12a3 3 0 003-3V10a3 3 0 00-3-3h-5V4.73A2 2 0 0012 1zM5 10a1 1 0 011-1h1.38l1.45 2.89A2 2 0 0010.62 13h2.76a2 2 0 001.79-1.11L16.62 9H18a1 1 0 011 1v10a1 1 0 01-1 1H6a1 1 0 01-1-1V10z" fill="#000"/>
+      <path d="M1 14a1 1 0 00-1 1v2a1 1 0 002 0v-2a1 1 0 00-1-1zM23 14a1 1 0 00-1 1v2a1 1 0 002 0v-2a1 1 0 00-1-1z" fill="#000"/>
+    </svg>`;
+
+    let RWQ_BOT_ENABLED = true;
+    let RWQ_PAYMENTS_CACHE = null;
+
+    async function rwqLoadBotEnabled() {
+      try {
+        const r = await fetch(`${SB_URL}/rest/v1/chatbot_settings?select=enabled&limit=1`, {
+          headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}` }
+        });
+        const j = await r.json();
+        RWQ_BOT_ENABLED = j[0]?.enabled !== false;
+      } catch {}
+    }
+
+    async function rwqLoadPayments() {
+      if (RWQ_PAYMENTS_CACHE) return RWQ_PAYMENTS_CACHE;
+      try {
+        const r = await fetch(`${SB_URL}/rest/v1/payment_methods?select=*&active=eq.true&order=sort_order.asc`, {
+          headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}` }
+        });
+        RWQ_PAYMENTS_CACHE = await r.json();
+      } catch { RWQ_PAYMENTS_CACHE = []; }
+      return RWQ_PAYMENTS_CACHE;
+    }
+
+    function injectBotIcon(root) {
+      if (!RWQ_BOT_ENABLED) {
+        root.querySelectorAll(".rwq-bot").forEach(el => el.remove());
+        return;
+      }
+      root.querySelectorAll("button").forEach(btn => {
+        if (btn.dataset.rwqBotChecked) return;
+        const txt = (btn.textContent || "").trim();
+        const aria = (btn.getAttribute("aria-label") || "").trim();
+        if (!/SAR|USD|ريال|دولار|عملة/i.test(txt + " " + aria)) return;
+        btn.dataset.rwqBotChecked = "1";
+        if (btn.parentElement.querySelector(".rwq-bot")) return;
+        const a = document.createElement("a");
+        a.href = "/chatbot.html";
+        a.className = "rwq-bot";
+        a.title = "المساعد الذكي";
+        a.setAttribute("aria-label", "المساعد الذكي");
+        a.innerHTML = RWQ_BOT_ICON;
+        btn.parentElement.insertBefore(a, btn);
+      });
+    }
+
+    async function injectCartPayList(root) {
+      // ابحث عن أي حاوية للسلة (Sheet/Dialog/Section)
+      const candidates = root.querySelectorAll("button, h1, h2, h3, h4");
+      let target = null;
+      candidates.forEach(el => {
+        if (target) return;
+        const t = (el.textContent || "").trim();
+        if (/إتمام الطلب|إتمام الشراء|متابعة الدفع|الإجمالي|المجموع|سلة المشتريات|سلة التسوق/.test(t)) {
+          target = el.closest("[role='dialog'], aside, section, form, div");
+        }
+      });
+      if (!target || target.dataset.rwqPayInjected) return;
+      target.dataset.rwqPayInjected = "1";
+      const methods = await rwqLoadPayments();
+      const wrap = document.createElement("div");
+      wrap.className = "rwq-pay-box";
+      const saved = localStorage.getItem("rawqan-selected-payment") || "";
+      const items = methods.length
+        ? methods.map((p, i) => {
+            const id = p.id || p.name || ("pm-" + i);
+            const checked = (saved === id) || (!saved && i === 0) ? "checked" : "";
+            const sel = checked ? " selected" : "";
+            return `<label class="pm${sel}" data-pm-id="${id}">
+              <input type="radio" name="rwq-pm" value="${id}" ${checked}/>
+              <span class="ic">${p.icon||"💳"}</span>
+              <div><div class="nm">${p.name}</div>${p.description?`<div class="ds">${p.description}</div>`:""}</div>
+            </label>`;
+          }).join("")
+        : `<div class="empty">لا توجد طرق دفع متاحة حالياً.</div>`;
+      wrap.innerHTML = `<h4>💳 اختر طريقة الدفع</h4>${items}`;
+      // اختيار افتراضي محفوظ
+      if (!saved && methods[0]) {
+        localStorage.setItem("rawqan-selected-payment", methods[0].id || methods[0].name || "pm-0");
+      }
+      wrap.addEventListener("change", (e) => {
+        const t = e.target;
+        if (t && t.name === "rwq-pm") {
+          localStorage.setItem("rawqan-selected-payment", t.value);
+          wrap.querySelectorAll(".pm").forEach(x => x.classList.toggle("selected", x.dataset.pmId === t.value));
+        }
+      });
+      target.insertBefore(wrap, target.firstChild);
+    }
+
+    function injectAdminLinks(root) {
+      if (!/\/admin/i.test(window.location.pathname)) return;
+      if (document.querySelector(".rwq-admin-links")) return;
+      // ضع الأزرار داخل قسم الكوبونات بدل الشريط العلوي
+      let target = null;
+      root.querySelectorAll("h1,h2,h3,h4").forEach(el => {
+        if (target) return;
+        const t = (el.textContent || "").trim();
+        if (/كوبون/.test(t)) {
+          target = el.closest("section, article, .card") || el.parentElement;
+        }
+      });
+      if (!target) return;
+      const bar = document.createElement("div");
+      bar.className = "rwq-admin-links";
+      bar.innerHTML = `
+        <a href="/admin-chatbot.html" target="_top">🤖 تدريب المساعد الذكي</a>
+        <a href="/admin-payments.html" target="_top">💳 طرق الدفع</a>
+      `;
+      // امنع نقرة الكارد الأب من التقاط النقر على الروابط
+      bar.addEventListener("click", (ev) => ev.stopPropagation());
+      bar.querySelectorAll("a").forEach((a) => {
+        const go = (ev) => {
+          ev.preventDefault();
+          ev.stopPropagation();
+          ev.stopImmediatePropagation();
+          const href = a.getAttribute("href");
+          try { (window.top || window).location.assign(href); }
+          catch { window.location.assign(href); }
+        };
+        // التقط في مرحلة الالتقاط حتى لا يتدخّل React
+        a.addEventListener("click", go, true);
+        a.addEventListener("mousedown", go, true);
+        a.addEventListener("touchend", go, true);
+      });
+      target.insertBefore(bar, target.firstChild);
+    }
+
+    // ===== استبدال قائمة المؤلف المنسدلة بخانة نصية في نموذج إضافة/تعديل كتاب =====
+    function getAuthors() {
+      try { return JSON.parse(localStorage.getItem("rawqan-authors") || "[]"); }
+      catch { return []; }
+    }
+    function saveAuthors(list) {
+      localStorage.setItem("rawqan-authors", JSON.stringify(list));
+    }
+    function ensureAuthorByName(name) {
+      const clean = (name || "").trim();
+      if (!clean) return null;
+      const list = getAuthors();
+      let found = list.find(a => (a.name || "").trim().toLowerCase() === clean.toLowerCase());
+      if (found) return found;
+      const id = (crypto.randomUUID && crypto.randomUUID()) ||
+                 (Date.now().toString(36) + Math.random().toString(36).slice(2, 8));
+      found = { id, name: clean, bio: "", image: "" };
+      list.push(found);
+      saveAuthors(list);
+      return found;
+    }
+    function setReactSelectValue(select, value) {
+      // أضف الخيار إن لم يكن موجوداً (حتى لو React سيعيد الرسم لاحقاً)
+      if (![...select.options].some(o => o.value === value)) {
+        const opt = document.createElement("option");
+        opt.value = value;
+        opt.textContent = value;
+        select.appendChild(opt);
+      }
+      const proto = Object.getPrototypeOf(select);
+      const setter = Object.getOwnPropertyDescriptor(proto, "value").set;
+      setter.call(select, value);
+      select.dispatchEvent(new Event("input", { bubbles: true }));
+      select.dispatchEvent(new Event("change", { bubbles: true }));
+    }
+    function enhanceAuthorField(root) {
+      // ابحث عن label نصّه "المؤلف" ثم استبدل أقرب select بخانة نصّية
+      root.querySelectorAll("label, span, div, p").forEach((el) => {
+        if (el.dataset.rwqAuthorEnhanced) return;
+        const t = (el.textContent || "").trim();
+        if (t !== "المؤلف" && t !== "المؤلف:" && t !== "اسم المؤلف") return;
+        // ابحث في الحاوية والأشقاء عن select
+        let container = el.parentElement;
+        let select = null;
+        for (let i = 0; i < 5 && container && !select; i++) {
+          select = container.querySelector("select");
+          if (!select) container = container.parentElement;
+        }
+        if (!select || select.dataset.rwqAuthorReplaced) return;
+        select.dataset.rwqAuthorReplaced = "1";
+        el.dataset.rwqAuthorEnhanced = "1";
+
+        // أنشئ خانة نصّية بجانب الـ select وأخفِ الـ select
+        select.style.display = "none";
+        const input = document.createElement("input");
+        input.type = "text";
+        input.placeholder = "اكتب اسم المؤلف";
+        input.className = select.className || "";
+        input.style.cssText = "width:100%;padding:8px 10px;border:1px solid #2a2a2a;background:#0a0a0a;color:#fff;border-radius:8px;font-family:inherit;font-size:14px";
+        // عبّئ القيمة الحالية إن وُجدت
+        const current = getAuthors().find(a => a.id === select.value);
+        if (current) input.value = current.name;
+
+        const sync = () => {
+          const a = ensureAuthorByName(input.value);
+          if (a) setReactSelectValue(select, a.id);
+        };
+        input.addEventListener("input", () => {
+          // مزامنة فورية كي تتحدث حالة React
+          sync();
+        });
+        input.addEventListener("blur", sync);
+        select.parentElement.insertBefore(input, select);
+      });
+    }
+
+    // فتح لوحة التحكم بالضغط على شعار روقان 5 مرات متتالية
+    let rwqLogoClicks = 0;
+    let rwqLogoTimer = null;
+    document.addEventListener("click", (e) => {
+      // ابحث عن أقرب صورة/سفج/رابط يمثل الشعار
+      const img = e.target.closest("img, svg");
+      const link = e.target.closest("a");
+      let isLogo = false;
+      if (img) {
+        const alt = (img.getAttribute("alt") || "").toLowerCase();
+        const src = (img.getAttribute("src") || "").toLowerCase();
+        if (/logo|روقان|rawqan/.test(alt) || /logo|favicon|rawqan/.test(src)) isLogo = true;
+      }
+      if (!isLogo && link) {
+        const href = link.getAttribute("href") || "";
+        const cls = (link.className && link.className.toString && link.className.toString()) || "";
+        if ((href === "/" || href === "#/" || href === "#") &&
+            (link.querySelector("img, svg") || /logo/i.test(cls))) {
+          isLogo = true;
+        }
+      }
+      if (!isLogo) return;
+      rwqLogoClicks++;
+      clearTimeout(rwqLogoTimer);
+      rwqLogoTimer = setTimeout(() => { rwqLogoClicks = 0; }, 1500);
+      if (rwqLogoClicks >= 5) {
+        rwqLogoClicks = 0;
+        e.preventDefault();
+        e.stopPropagation();
+        (window.top || window).location.href = "/index.html/admin/login";
+      }
+    }, true);
+
+    async function uploadImageFile(file) {
+      const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
+      const path = `${Date.now()}-${Math.random().toString(36).slice(2,8)}.${ext}`;
+      const res = await fetch(`${SB_URL}/storage/v1/object/${SB_BUCKET}/${path}`, {
+        method: "POST",
+        headers: { "Authorization": `Bearer ${SB_KEY}`, "apikey": SB_KEY, "Content-Type": file.type || "image/jpeg" },
+        body: file,
+      });
+      if (!res.ok) throw new Error(await res.text());
+      return `${SB_URL}/storage/v1/object/public/${SB_BUCKET}/${path}`;
+    }
+
+    // إعداد قيمة input في React بشكل يحاكي الإدخال الحقيقي
+    function setReactInputValue(input, value) {
+      const proto = Object.getPrototypeOf(input);
+      const setter = Object.getOwnPropertyDescriptor(proto, "value").set;
+      setter.call(input, value);
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+      input.dispatchEvent(new Event("change", { bubbles: true }));
+    }
+
+    function enhanceImageUrlInputs(root) {
+      const labels = root.querySelectorAll("label, p, span, div");
+      labels.forEach((el) => {
+        if (el.dataset.rwqEnhanced) return;
+        const txt = (el.textContent || "").trim();
+        if (txt !== "رابط الصورة" && txt !== "رابط الصورة:") return;
+        // ابحث عن أقرب input/textarea بعده
+        let container = el.parentElement;
+        let input = null;
+        for (let i = 0; i < 4 && container && !input; i++) {
+          input = container.querySelector('input[type="text"], input[type="url"], input:not([type]), textarea');
+          if (!input) container = container.parentElement;
+        }
+        if (!input || input.dataset.rwqHasUpload) return;
+        input.dataset.rwqHasUpload = "1";
+        el.dataset.rwqEnhanced = "1";
+
+        const wrap = document.createElement("div");
+        wrap.style.cssText = "margin-top:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap";
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.textContent = "📷 رفع صورة من الجهاز";
+        btn.style.cssText = "background:#f7ef4a;color:#000;padding:8px 14px;border-radius:8px;font-weight:bold;border:none;cursor:pointer";
+        const status = document.createElement("span");
+        status.style.cssText = "color:#f7ef4a;font-size:13px";
+        const fileInput = document.createElement("input");
+        fileInput.type = "file";
+        fileInput.accept = "image/*";
+        fileInput.style.display = "none";
+        btn.onclick = () => fileInput.click();
+        fileInput.onchange = async () => {
+          const f = fileInput.files?.[0];
+          if (!f) return;
+          status.textContent = "جاري الرفع...";
+          btn.disabled = true;
+          try {
+            const url = await uploadImageFile(f);
+            setReactInputValue(input, url);
+            status.textContent = "✓ تم الرفع";
+          } catch (e) {
+            status.textContent = "فشل الرفع: " + e.message;
+          } finally {
+            btn.disabled = false;
+          }
+        };
+        wrap.append(btn, status, fileInput);
+        input.parentElement.appendChild(wrap);
+      });
+    }
+
+    function enhanceInvoiceCopy(root) {
+      const all = root.querySelectorAll("p, span, div, h1, h2, h3, strong");
+      all.forEach((el) => {
+        if (el.dataset.rwqInv) return;
+        const txt = el.textContent || "";
+        const m = txt.match(/رقم الفاتورة[:：]?\s*([A-Z0-9-]{6,})/);
+        if (!m) return;
+        if (el.querySelector("p,span,div,h1,h2,h3")) return; // أوراق فقط
+        el.dataset.rwqInv = "1";
+        el.style.cursor = "pointer";
+        el.title = "اضغط للنسخ";
+        el.addEventListener("click", async (e) => {
+          e.stopPropagation();
+          try {
+            await navigator.clipboard.writeText(m[1]);
+            const old = el.textContent;
+            el.textContent = "✓ تم نسخ رقم الفاتورة: " + m[1];
+            setTimeout(() => { el.textContent = old; }, 1500);
+          } catch {}
+        });
+      });
+    }
+
+    function hideArabicNovelsBanner(root) {
+      root.querySelectorAll("h1,h2,h3,h4").forEach((el) => {
+        if (el.dataset.rwqHidden) return;
+        const t = (el.textContent || "").trim();
+        if (/^روايات\s+عربيه?$/.test(t)) {
+          el.dataset.rwqHidden = "1";
+          const section = el.closest("section, article, div");
+          if (section) section.style.display = "none";
+        }
+      });
+    }
+
+    function rwqRunAll() {
+      injectBotIcon(document.body);
+      injectCartPayList(document.body);
+      injectAdminLinks(document.body);
+      enhanceImageUrlInputs(document.body);
+      enhanceInvoiceCopy(document.body);
+      enhanceAuthorField(document.body);
+      hideArabicNovelsBanner(document.body);
+    }
+    const obs = new MutationObserver(rwqRunAll);
+    document.addEventListener("DOMContentLoaded", async () => {
+      await rwqLoadBotEnabled();
+      obs.observe(document.body, { childList: true, subtree: true });
+      rwqRunAll();
+    });
+  </script>
+  <script type="module" crossorigin src="/assets/index-Dwcaygx5.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-QYlg3Y-1.css">
+</head>
+
+  <body>
+    <div id="root"></div>
+  </body>
+</html>

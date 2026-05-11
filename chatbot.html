@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>المساعد الذكي | روقان</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<style>
+  @font-face { font-family:"Thmanyah"; src:url("/fonts/ThmanyahSerifDisplay-Regular.otf") format("opentype"); font-weight:400; font-display:swap; }
+  @font-face { font-family:"Thmanyah"; src:url("/fonts/ThmanyahSerifDisplay-Medium.otf") format("opentype"); font-weight:500; font-display:swap; }
+  @font-face { font-family:"Thmanyah"; src:url("/fonts/ThmanyahSerifDisplay-Bold.otf") format("opentype"); font-weight:700; font-display:swap; }
+  @font-face { font-family:"Thmanyah"; src:url("/fonts/ThmanyahSerifDisplay-Black.otf") format("opentype"); font-weight:900; font-display:swap; }
+  :root { --yellow:#f7ef46; --bg:#0a0a0a; --card:#171717; --border:#2a2a2a; --muted:#a3a3a3; }
+  * { box-sizing: border-box; }
+  body, input, button, textarea { font-family:"Thmanyah","Segoe UI",system-ui,sans-serif; }
+  body { margin:0; background:var(--bg); color:#fff; min-height:100vh; }
+  .notice { background:#3a2e00; border:1px solid #f7ef46; color:#f7ef46; padding:10px 14px; border-radius:10px; font-size:13px; margin-bottom:12px; text-align:center; font-weight:500; }
+  .topbar { background:#000; border-bottom:1px solid var(--border); padding:14px 20px; display:flex; align-items:center; justify-content:space-between; }
+  .topbar a { color:var(--yellow); text-decoration:none; font-weight:bold; }
+  .topbar h1 { margin:0; font-size:20px; color:var(--yellow); }
+  .wrap { max-width:780px; margin:24px auto; padding:0 16px; }
+  .chat { background:var(--card); border:1px solid var(--border); border-radius:16px; height:calc(100vh - 160px); display:flex; flex-direction:column; overflow:hidden; }
+  .chat-header { padding:16px 20px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:12px; }
+  .chat-header .avatar { width:44px; height:44px; border-radius:50%; background:var(--yellow); display:flex; align-items:center; justify-content:center; }
+  .chat-header h2 { margin:0; font-size:18px; }
+  .chat-header p { margin:0; font-size:12px; color:var(--muted); }
+  .messages { flex:1; padding:18px; overflow-y:auto; display:flex; flex-direction:column; gap:12px; }
+  .msg { max-width:78%; padding:10px 14px; border-radius:14px; line-height:1.6; white-space:pre-wrap; }
+  .msg.user { align-self:flex-start; background:var(--yellow); color:#000; border-bottom-right-radius:4px; }
+  .msg.bot { align-self:flex-end; background:#262626; color:#fff; border-bottom-left-radius:4px; }
+  .typing { color:var(--muted); font-size:13px; padding:0 18px 8px; }
+  .input-row { display:flex; gap:8px; padding:14px; border-top:1px solid var(--border); background:#0f0f0f; }
+  .input-row input { flex:1; background:#000; border:1px solid var(--border); color:#fff; padding:12px 14px; border-radius:10px; font-size:15px; font-family:inherit; }
+  .input-row input:focus { outline:none; border-color:var(--yellow); }
+  .input-row button { background:var(--yellow); color:#000; border:none; padding:0 20px; border-radius:10px; font-weight:bold; cursor:pointer; font-family:inherit; }
+  .input-row button:disabled { opacity:.5; cursor:not-allowed; }
+  .disabled-banner { background:#7f1d1d; color:#fff; padding:14px; text-align:center; border-radius:12px; margin-bottom:16px; }
+</style>
+</head>
+<body>
+  <div class="topbar">
+    <h1>المساعد الذكي 🤖</h1>
+    <a href="/index.html">← العودة للموقع</a>
+  </div>
+  <div class="wrap">
+    <div id="disabled" class="disabled-banner" style="display:none">المساعد الذكي معطّل حالياً. تواصل مع الدعم.</div>
+    <div class="notice">⚠️ ملاحظة: قد تكون بعض المعلومات غير دقيقة. تأكد من المدخلات قبل اتخاذ أي قرار.</div>
+    <div class="chat">
+      <div class="chat-header">
+        <div class="avatar">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M9 15a1 1 0 100 2 1 1 0 000-2zm6 0a1 1 0 100 2 1 1 0 000-2zM12 1a2 2 0 00-1 3.73V7H6a3 3 0 00-3 3v10a3 3 0 003 3h12a3 3 0 003-3V10a3 3 0 00-3-3h-5V4.73A2 2 0 0012 1z" fill="#000"/></svg>
+        </div>
+        <div>
+          <h2>مساعد روقان</h2>
+          <p>اسألني عن الكتب، الطلبات، الكوبونات وطرق الدفع</p>
+        </div>
+      </div>
+      <div id="messages" class="messages"></div>
+      <div id="typing" class="typing" style="display:none">المساعد يكتب...</div>
+      <div class="input-row">
+        <input id="input" type="text" placeholder="اكتب سؤالك هنا..." autocomplete="off" />
+        <button id="send">إرسال</button>
+      </div>
+    </div>
+  </div>
+
+<script src="/rawqan-shared.js"></script>
+<script>
+(async function () {
+  const messagesEl = document.getElementById("messages");
+  const input = document.getElementById("input");
+  const sendBtn = document.getElementById("send");
+  const typingEl = document.getElementById("typing");
+
+  let settings = { greeting: "هلا والله!", fallback: "ما فهمت سؤالك.", enabled: true };
+  let faqs = [];
+
+  try {
+    settings = (await RAWQAN.getSettings()) || settings;
+    faqs = await RAWQAN.listFaqsActive();
+  } catch (e) { console.error(e); }
+
+  if (!settings.enabled) {
+    document.getElementById("disabled").style.display = "block";
+    input.disabled = true; sendBtn.disabled = true;
+  }
+
+  function add(role, text) {
+    const d = document.createElement("div");
+    d.className = "msg " + role;
+    d.textContent = text;
+    messagesEl.appendChild(d);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
+
+  add("bot", settings.greeting);
+
+  function findReply(text) {
+    const t = text.toLowerCase();
+    for (const f of faqs) {
+      const kws = (f.keywords || "").split(",").map(s => s.trim().toLowerCase()).filter(Boolean);
+      if (kws.some(k => t.includes(k))) return f.reply;
+    }
+    return settings.fallback;
+  }
+
+  function send() {
+    const text = input.value.trim();
+    if (!text) return;
+    add("user", text);
+    input.value = "";
+    typingEl.style.display = "block";
+    setTimeout(() => {
+      typingEl.style.display = "none";
+      add("bot", findReply(text));
+    }, 500);
+  }
+
+  sendBtn.onclick = send;
+  input.addEventListener("keydown", (e) => { if (e.key === "Enter") send(); });
+})();
+</script>
+</body>
+</html>
