@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="ar" dir="rtl">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -66,6 +66,9 @@
     const SB_URL = "https://fdrvlszhniatlddkzksw.supabase.co";
     const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkcnZsc3pobmlhdGxkZGt6a3N3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgxMTY4NTcsImV4cCI6MjA5MzY5Mjg1N30.-mhy3WqjKjzBSpypJlvh6ZVuGhFFuKSt0Dsxa-bXVRM";
     const SB_BUCKET = "rawqan-images";
+    // رابط Supabase الخاص ببيانات الموقع (جداول المساعد الذكي وطرق الدفع)
+    const DATA_SB_URL = "https://ikoajtpuimhzcecguyon.supabase.co";
+    const DATA_SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlrb2FqdHB1aW1oemNlY2d1eW9uIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgxNTA0MDIsImV4cCI6MjA5MzcyNjQwMn0.pI5ndEBvDYLfp2pE5y4brx0xQfJi8BTrd1fLc4fSA9s";
 
     // ===== أيقونة الروبوت + زر اختيار الدفع + روابط أقسام الأدمن =====
     const RWQ_BOT_ICON = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -78,8 +81,8 @@
 
     async function rwqLoadBotEnabled() {
       try {
-        const r = await fetch(`${SB_URL}/rest/v1/chatbot_settings?select=enabled&limit=1`, {
-          headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}` }
+        const r = await fetch(`${DATA_SB_URL}/rest/v1/chatbot_settings?select=enabled&limit=1`, {
+          headers: { apikey: DATA_SB_KEY, Authorization: `Bearer ${DATA_SB_KEY}` }
         });
         const j = await r.json();
         RWQ_BOT_ENABLED = j[0]?.enabled !== false;
@@ -89,8 +92,8 @@
     async function rwqLoadPayments() {
       if (RWQ_PAYMENTS_CACHE) return RWQ_PAYMENTS_CACHE;
       try {
-        const r = await fetch(`${SB_URL}/rest/v1/payment_methods?select=*&active=eq.true&order=sort_order.asc`, {
-          headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}` }
+        const r = await fetch(`${DATA_SB_URL}/rest/v1/payment_methods?select=*&active=eq.true&order=sort_order.asc`, {
+          headers: { apikey: DATA_SB_KEY, Authorization: `Bearer ${DATA_SB_KEY}` }
         });
         RWQ_PAYMENTS_CACHE = await r.json();
       } catch { RWQ_PAYMENTS_CACHE = []; }

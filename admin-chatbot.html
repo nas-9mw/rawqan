@@ -91,7 +91,7 @@
 <script src="/rawqan-shared.js"></script>
 <script>
 (async function () {
-  let settings = await RAWQAN.getSettings();
+  let settings = (await RAWQAN.getSettings()) || { greeting: "هلا والله!", fallback: "ما فهمت سؤالك.", enabled: true };
   const statusBadge = document.getElementById("statusBadge");
   const statusText = document.getElementById("statusText");
   const greetingEl = document.getElementById("greeting");
